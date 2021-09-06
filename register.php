@@ -1,18 +1,50 @@
 <?php
-session_start();
-include "conn.php";
-$fname=isset($_GET['fname']);
-$_SESSION['fname']=$fname;
-$email=isset($_GET['email']);
-$_SESSION['email']=$email;
-$password=isset($_GET['pass']);
-$_SESSION['pass']=$password;
-if(isset($_POST['submit'])){
-    $q="Insert into Register (full_name,email,password) values ('$fname','$email'$password';";
-    $query=mysqli_query($q,$con) or trigger_error($con); 
-    header(location:"Login.php") ;  
-  
-}
+    session_start();
+    include "conn.php";
+    /*$fname="";
+    $email="";
+    $password="";
+    $cpassword="";*/
+    if(isset($_POST['submit'])){
+        $fname=$_POST['fname'];
+        $email=$_POST['email'];
+        $password=$_POST['pass'];
+        $cpassword=$_POST['cpassword'];
+       
+        if($password=$cpassword){
+            $emaildup="SELECT email from Crudtable where email='$email'";
+            $res=mysqli_query($con,$emaildup);
+            if(mysqli_num_rows($res)){
+              $row=mysqli_fetch_assoc($res);
+              if($email==$row['email']){
+                echo '<a href="Login.php" class ="btn  btn-danger">Email already exists try Loging in</a>';
+              }    
+            }
+            $q="INSERT into crudtable (full_name,email,password) values ('$fname','$email','$password');";
+            $query=mysqli_query($con,$q) or trigger_error($con); 
+            header("location:Login.php") ;
+        }
+        else{
+            echo  '<a href="register.php" class ="btn  btn-danger">Passwords do not match</a>'; 
+            //header("location:register.php") ;
+        }
+       
+         
+    }  
+        // if(empty($fname)){
+        //     error['f']="Name required";
+        // }
+        // if(empty($email)){
+        //     error['e']="Email required";
+        // }
+        // if(empty($password)){
+        //     error['p']="Password required";
+        
+        // $q="Insert into crudtable(full_name,email,password) values ('$fname','$email'$password');";
+        // $query=mysqli_query($q,$con) or trigger_error($con); 
+        // header(location:"Login.php") ;  
+      
+    
 
 ?>
 <!DOCTYPE html>
@@ -28,9 +60,9 @@ if(isset($_POST['submit'])){
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
     <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css">
 </head>
@@ -45,33 +77,36 @@ if(isset($_POST['submit'])){
             <div class="card-body register-card-body">
                 <p class="login-box-msg">Register a new membership</p>
 
-                <form action="../../index.html" method="post">
+                <form method="post">
                     <div class="input-group mb-3">
                         <input name="fname" type=" text" class="form-control" placeholder="Full name">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-user"></span>
+                                <p class="text-danger"> <?php if(isset($errors['f'])){ echo $errors['e'];}?></p>
                             </div>
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="email" class="form-control" placeholder="Email">
+                        <input type="email" class="form-control" placeholder="Email" name="email" pattern = "^[^\s@]+@[^\@]+\[^\s@]+$" oninvalid="alert('mail should contain '@' and '.'')">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
+                                <p class="text-danger"> <?php if(isset($errors['e'])) {echo $errors['e'];} ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input name="pass" type="password" class="form-control" placeholder="Password">
+                        <input name="pass" type="password" class="form-control" placeholder="Password" pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"  oninvalid="alert('mail should contain )>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
+                                <p class="text-danger"> <?php if(isset($errors['p'])){ echo $errors['e'];} ?></p>
                             </div>
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control" placeholder="Retype password">
+                        <input type="password" class="form-control" placeholder="Retype password" name="cpassword">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
@@ -89,7 +124,7 @@ if(isset($_POST['submit'])){
                         </div>
                         <!-- /.col -->
                         <div class="col-4">
-                            <button type="submit" class="btn btn-primary btn-block" name="submit">Register</button>
+                            <button type="submit" class="btn btn-primary btn-block" name="submit" >Register</button>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -115,11 +150,13 @@ if(isset($_POST['submit'])){
     <!-- /.register-box -->
 
     <!-- jQuery -->
-    <script src="../../plugins/jquery/jquery.min.js"></script>
+    <script src="plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
-    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
-    <script src="../../dist/js/adminlte.min.js"></script>
+    <script src="dist/js/adminlte.min.js"></script>
+ 
+    
 </body>
 
 </html>
